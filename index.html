@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CH1AD0's stuff - Futuristic UTAU Voicebank</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        cyber: {
+                            DEFAULT: '#00ffcc',
+                            dark: '#020c12',
+                            card: 'rgba(2, 25, 38, 0.75)',
+                            border: '#00ffcc44',
+                            glow: '#00ffccaa'
+                        }
+                    },
+                    fontFamily: {
+                        orbitron: ['Orbitron', 'sans-serif'],
+                        inter: ['Inter', 'sans-serif']
+                    },
+                    animation: {
+                        'float': 'float 4s ease-in-out infinite',
+                        'pulse-glow': 'pulseGlow 2s ease-in-out infinite',
+                        'scanline': 'scanline 8s linear infinite'
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-15px)' }
+                        },
+                        pulseGlow: {
+                            '0%, 100%': { filter: 'drop-shadow(0 0 15px rgba(0, 255, 204, 0.6))' },
+                            '50%': { filter: 'drop-shadow(0 0 35px rgba(0, 255, 204, 0.9))' }
+                        },
+                        scanline: {
+                            '0%': { transform: 'translateY(-100%)' },
+                            '100%': { transform: 'translateY(1000%)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020c12;
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+        .font-cyber {
+            font-family: 'Orbitron', sans-serif;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #020c12;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #00ffcc55;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00ffcc;
+        }
+        .glass-panel {
+            background: rgba(2, 18, 28, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 255, 204, 0.25);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+        }
+        .neon-border {
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.3);
+            transition: all 0.3s ease;
+        }
+        .neon-border:hover {
+            box-shadow: 0 0 25px rgba(0, 255, 204, 0.6);
+            border-color: #00ffcc;
+        }
+        /* Background Character Image with 50% opacity occupying entire viewport */
+        .bg-character {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            opacity: 0.5;
+            z-index: -10;
+            pointer-events: none;
+            filter: brightness(0.9) contrast(1.1);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between relative">
+
+    <!-- 50% Transparent Background Character Image -->
+    <img src="https://img.sanishtech.com/u/1044f379767bc4f43b45340249bf2f1a.png" class="bg-character" alt="CH1AD0 Background" />
+
+    <!-- Cyber Scanline Overlay -->
+    <div class="fixed inset-0 pointer-events-none z-[-5] overflow-hidden opacity-10">
+        <div class="w-full h-20 bg-gradient-to-b from-transparent via-[#00ffcc] to-transparent animate-scanline"></div>
+    </div>
+
+    <!-- Dark Gradient Tint overlay for readability -->
+    <div class="fixed inset-0 bg-gradient-to-b from-[#020c12]/80 via-[#020c12]/60 to-[#020c12]/90 z-[-9] pointer-events-none"></div>
+
+    <!-- PRELOADER SCREEN -->
+    <div id="preloader" class="fixed inset-0 z-50 bg-[#020c12] flex flex-col items-center justify-center transition-opacity duration-700">
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-[#00ffcc22] via-transparent to-transparent opacity-50"></div>
+        <div class="relative z-10 text-center px-4 max-w-md">
+            <div class="w-24 h-24 mx-auto mb-6 relative flex items-center justify-center">
+                <div class="absolute inset-0 border-4 border-[#00ffcc33] border-t-[#00ffcc] rounded-full animate-spin"></div>
+                <div class="absolute inset-2 border-4 border-[#00ffcc22] border-b-[#00ffcc] rounded-full animate-spin" style="animation-direction: reverse; animation-duration: 3s;"></div>
+                <span class="font-cyber text-xl font-bold text-[#00ffcc]" id="loadingPercent">0%</span>
+            </div>
+            <h1 class="font-cyber text-2xl md:text-3xl font-black tracking-widest text-white mb-2 uppercase">CH1AD0's SYSTEM</h1>
+            <p class="text-sm text-[#00ffcc88] font-cyber tracking-wider mb-8" id="loadingStatus">INITIALIZING NEURAL VOICEBANKS...</p>
+            
+            <button id="enterBtn" onclick="enterSystem()" class="hidden w-full py-4 px-8 bg-gradient-to-r from-[#00ffcc] to-[#00b4d8] text-[#020c12] font-cyber font-bold tracking-widest rounded-lg shadow-[0_0_20px_rgba(0,255,204,0.5)] hover:shadow-[0_0_35px_rgba(0,255,204,0.8)] hover:scale-105 transition-all duration-300 uppercase">
+                ENTER SYSTEM <i class="fa-solid fa-arrow-right ml-2"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN WEBSITE CONTAINER -->
+    <div id="mainContent" class="opacity-0 transition-opacity duration-1000 flex flex-col min-h-screen">
+        
+        <!-- HEADER / NAVIGATION -->
+        <header class="w-full py-5 px-6 md:px-12 flex justify-between items-center glass-panel border-b border-[#00ffcc33] sticky top-0 z-40">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-lg bg-[#00ffcc22] border border-[#00ffcc] flex items-center justify-center text-[#00ffcc] font-cyber font-bold text-lg shadow-[0_0_10px_rgba(0,255,204,0.4)]">
+                    C
+                </div>
+                <div>
+                    <span class="font-cyber text-lg md:text-xl font-extrabold tracking-wider text-white">CH1AD0's</span>
+                    <span class="font-cyber text-xs block text-[#00ffcc] tracking-widest">STUFF // UTAU v1.1</span>
+                </div>
+            </div>
+            <nav class="hidden md:flex items-center space-x-8 font-cyber text-sm tracking-widest text-[#a5f3fc]">
+                <a href="#about" class="hover:text-[#00ffcc] transition-colors">ABOUT</a>
+                <a href="#player" class="hover:text-[#00ffcc] transition-colors">AUDIO SAMPLE</a>
+                <a href="#downloads" class="hover:text-[#00ffcc] transition-colors">DOWNLOADS</a>
+                <a href="#terms" class="hover:text-[#00ffcc] transition-colors">README / TOU</a>
+            </nav>
+            <div class="flex items-center space-x-4">
+                <a href="#downloads" class="px-4 py-2 bg-[#00ffcc]/20 border border-[#00ffcc] text-[#00ffcc] font-cyber text-xs tracking-wider rounded hover:bg-[#00ffcc] hover:text-[#020c12] transition-all duration-300 shadow-[0_0_10px_rgba(0,255,204,0.3)]">
+                    <i class="fa-solid fa-download mr-1"></i> GET VB
+                </a>
+            </div>
+        </header>
+
+        <!-- HERO SECTION WITH BIG FLOATING NAME -->
+        <main class="flex-grow container mx-auto px-4 md:px-6 py-12 md:py-20 flex flex-col items-center justify-center text-center">
+            
+            <div class="inline-block mb-4 px-4 py-1.5 rounded-full glass-panel border border-[#00ffcc44] text-[#00ffcc] font-cyber text-xs tracking-widest animate-pulse">
+                <i class="fa-solid fa-circle-nodes mr-2 text-[#00ffcc]"></i> SYSTEM ONLINE : ACTIVE UTAU VOICEBANK
+            </div>
+
+            <!-- Big Moving Floating Name "CH1AD0" -->
+            <h1 class="font-cyber text-6xl sm:text-8xl md:text-9xl font-black tracking-tighter text-white animate-float animate-pulse-glow mb-6 drop-shadow-[0_0_35px_rgba(0,255,204,0.7)] select-none">
+                CH1AD0
+            </h1>
+
+            <p class="max-w-2xl text-base md:text-lg text-slate-300 mb-12 font-inter font-light leading-relaxed">
+                Welcome to the official repository of <strong class="text-[#00ffcc] font-medium">CH1AD0's stuff</strong>. Discover the Japanese CVC UTAU voicebank created and otoed by Guizokkaaa, tuned for futuristic cyber tracks.
+            </p>
+
+            <!-- AUDIO SAMPLE PLAYER SECTION -->
+            <section id="player" class="w-full max-w-3xl mb-16">
+                <div class="glass-panel p-6 md:p-8 rounded-2xl neon-border relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-[#00ffcc]/10 rounded-full blur-2xl pointer-events-none"></div>
+                    
+                    <div class="flex flex-col md:flex-row items-center justify-between mb-6 pb-4 border-b border-[#00ffcc33]">
+                        <div class="flex items-center space-x-4 mb-4 md:mb-0">
+                            <button id="playBtn" onclick="togglePlay()" class="w-14 h-14 rounded-xl bg-gradient-to-tr from-[#00ffcc] to-[#00b4d8] text-[#020c12] flex items-center justify-center text-xl shadow-[0_0_20px_rgba(0,255,204,0.6)] hover:scale-105 active:scale-95 transition-all">
+                                <i id="playIcon" class="fa-solid fa-play ml-1"></i>
+                            </button>
+                            <div class="text-left">
+                                <h3 class="font-cyber text-lg font-bold text-white">DEMO SAMPLE // "CYBER DEMO"</h3>
+                                <p class="text-xs text-[#00ffcc] font-cyber tracking-wider">VOICEBANK: CH1AD0 v1.1 (Japanese CVC)</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3 w-full md:w-auto justify-end">
+                            <span class="text-xs text-slate-400 font-cyber" id="currentTime">0:00</span>
+                            <div class="w-24 md:w-32 bg-slate-800 h-1.5 rounded-full overflow-hidden cursor-pointer" id="progressBarContainer" onclick="seekAudio(event)">
+                                <div id="progressBar" class="bg-[#00ffcc] h-full w-0 transition-all"></div>
+                            </div>
+                            <span class="text-xs text-slate-400 font-cyber" id="durationTime">0:00</span>
+                        </div>
+                    </div>
+
+                    <!-- Audio Visualizer Bars -->
+                    <div class="flex items-end justify-center space-x-1.5 h-16 pt-2" id="visualizer">
+                        <!-- Generated dynamically via JS -->
+                    </div>
+
+                    <!-- Hidden Audio Element -->
+                    <audio id="voiceSample" src="https://www.image2url.com/r2/default/audio/1793232111886-84fbb92e-fc56-48e6-86ab-8a16954efd34.wav" preload="metadata"></audio>
+                </div>
+            </section>
+
+            <!-- VOICEBANK INFO GRID -->
+            <section id="about" class="w-full max-w-5xl grid grid-cols-1 md:grid-cols-3 gap-6 mb-16 text-left">
+                <!-- Spec Card 1 -->
+                <div class="glass-panel p-6 rounded-xl border border-[#00ffcc33] hover:border-[#00ffcc] transition-all">
+                    <div class="w-10 h-10 rounded-lg bg-[#00ffcc]/10 border border-[#00ffcc] flex items-center justify-center text-[#00ffcc] mb-4">
+                        <i class="fa-solid fa-microphone-lines"></i>
+                    </div>
+                    <h3 class="font-cyber text-lg font-bold text-white mb-2">VOICEBANK SPECS</h3>
+                    <ul class="text-sm text-slate-300 space-y-2 font-inter">
+                        <li><strong class="text-[#00ffcc]">Type:</strong> CVC</li>
+                        <li><strong class="text-[#00ffcc]">Pitch:</strong> Single Pitch (Monopitch)</li>
+                        <li><strong class="text-[#00ffcc]">Language:</strong> Japanese Only</li>
+                        <li><strong class="text-[#00ffcc]">Resampler:</strong> Worldline / HIFIsampler</li>
+                    </ul>
+                </div>
+
+                <!-- Spec Card 2 -->
+                <div class="glass-panel p-6 rounded-xl border border-[#00ffcc33] hover:border-[#00ffcc] transition-all">
+                    <div class="w-10 h-10 rounded-lg bg-[#00ffcc]/10 border border-[#00ffcc] flex items-center justify-center text-[#00ffcc] mb-4">
+                        <i class="fa-solid fa-user-gear"></i>
+                    </div>
+                    <h3 class="font-cyber text-lg font-bold text-white mb-2">CREATOR & CREDITS</h3>
+                    <ul class="text-sm text-slate-300 space-y-2 font-inter">
+                        <li><strong class="text-[#00ffcc]">Voice Provider:</strong> CH1AD0</li>
+                        <li><strong class="text-[#00ffcc]">Creator:</strong> Guizokkaaa</li>
+                        <li><strong class="text-[#00ffcc]">Otoer:</strong> Guizokkaaa</li>
+                        <li><strong class="text-[#00ffcc]">Release:</strong> Version 1.1</li>
+                    </ul>
+                </div>
+
+                <!-- Spec Card 3 -->
+                <div class="glass-panel p-6 rounded-xl border border-[#00ffcc33] hover:border-[#00ffcc] transition-all">
+                    <div class="w-10 h-10 rounded-lg bg-[#00ffcc]/10 border border-[#00ffcc] flex items-center justify-center text-[#00ffcc] mb-4">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <h3 class="font-cyber text-lg font-bold text-white mb-2">TERMS OF USE</h3>
+                    <ul class="text-sm text-slate-300 space-y-2 font-inter">
+                        <li><strong class="text-[#00ffcc]">Commercial:</strong> Allowed with permission</li>
+                        <li><strong class="text-[#00ffcc]">R-18 / Gore:</strong> Permitted with credit</li>
+                        <li><strong class="text-[#00ffcc]">Redistribution:</strong> Do not re-upload VB</li>
+                        <li><strong class="text-[#00ffcc]">Credit:</strong> Required (CH1AD0 / Guizokkaaa)</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- DOWNLOAD SECTION -->
+            <section id="downloads" class="w-full max-w-4xl mb-16">
+                <div class="glass-panel p-8 md:p-12 rounded-2xl neon-border text-center relative overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-r from-[#00ffcc]/10 via-transparent to-[#00b4d8]/10 pointer-events-none"></div>
+                    <h2 class="font-cyber text-2xl md:text-3xl font-extrabold text-white mb-4">DOWNLOAD CH1AD0 v1.1</h2>
+                    <p class="text-slate-300 max-w-xl mx-auto mb-8 text-sm md:text-base">
+                        Get the official Japanese CVC release archive otoed by Guizokkaaa. Recommended with Worldline or HIFIsampler.
+                    </p>
+                    <div class="flex items-center justify-center">
+                        <a href="https://drive.google.com/uc?id=1VRxhH8ZfXQ3LFz_QJXpcNQvQV0bW29WD" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-[#00ffcc] to-[#00b4d8] text-[#020c12] font-cyber font-bold tracking-wider rounded-xl shadow-[0_0_20px_rgba(0,255,204,0.5)] hover:shadow-[0_0_35px_rgba(0,255,204,0.8)] hover:scale-105 transition-all uppercase inline-flex items-center justify-center">
+                            <i class="fa-solid fa-cloud-arrow-down mr-2"></i> DOWNLOAD CH1AD0 v1.1 (ZIP)
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- README & GUIDELINES -->
+            <section id="terms" class="w-full max-w-4xl text-left glass-panel p-8 rounded-2xl border border-[#00ffcc33] mb-12">
+                <h3 class="font-cyber text-xl font-bold text-white mb-4 flex items-center">
+                    <i class="fa-solid fa-book-open text-[#00ffcc] mr-3"></i> README
+                </h3>
+                <div class="text-slate-300 space-y-4 text-sm md:text-base font-light leading-relaxed">
+                    <p class="text-[#00ffcc] font-medium text-lg">
+                        Thanks for installing it :3
+                    </p>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="w-full py-6 px-6 text-center glass-panel border-t border-[#00ffcc33] text-xs font-cyber text-[#00ffcc88]">
+            <p>&copy; 2026 CH1AD0's stuff. All rights reserved. Designed with Futuristic Teal Cyber Aesthetics.</p>
+        </footer>
+
+    </div>
+
+    <!-- CUSTOM NOTIFICATION MODAL (Replaces alert) -->
+    <div id="customModal" class="fixed inset-0 z-50 bg-[#020c12]/90 backdrop-blur-md flex items-center justify-center p-4 hidden">
+        <div class="glass-panel p-6 md:p-8 rounded-2xl max-w-md w-full border border-[#00ffcc] text-center shadow-[0_0_30px_rgba(0,255,204,0.4)]">
+            <div class="w-12 h-12 rounded-full bg-[#00ffcc]/20 border border-[#00ffcc] text-[#00ffcc] flex items-center justify-center mx-auto mb-4 text-xl">
+                <i class="fa-solid fa-terminal"></i>
+            </div>
+            <h3 class="font-cyber text-lg font-bold text-white mb-2" id="modalTitle">SYSTEM NOTIFICATION</h3>
+            <p class="text-slate-300 text-sm mb-6" id="modalMessage">Action completed successfully.</p>
+            <button onclick="closeModal()" class="w-full py-3 bg-[#00ffcc] text-[#020c12] font-cyber font-bold tracking-widest rounded-lg hover:shadow-[0_0_20px_rgba(0,255,204,0.8)] transition-all">
+                CLOSE
+            </button>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // Preloader Simulation
+        let percent = 0;
+        const percentEl = document.getElementById('loadingPercent');
+        const statusEl = document.getElementById('loadingStatus');
+        const preloaderEl = document.getElementById('preloader');
+        const enterBtn = document.getElementById('enterBtn');
+        const mainContent = document.getElementById('mainContent');
+
+        const loadingInterval = setInterval(() => {
+            percent += Math.floor(Math.random() * 12) + 5;
+            if (percent >= 100) {
+                percent = 100;
+                clearInterval(loadingInterval);
+                percentEl.textContent = '100%';
+                statusEl.textContent = 'SYSTEM READY FOR ACCESS';
+                enterBtn.classList.remove('hidden');
+            } else {
+                percentEl.textContent = percent + '%';
+                if (percent > 70) {
+                    statusEl.textContent = 'SYNTHESIZING CHARACTER OTO...';
+                } else if (percent > 40) {
+                    statusEl.textContent = 'LOADING BACKGROUND ASSETS...';
+                }
+            }
+        }, 150);
+
+        function enterSystem() {
+            preloaderEl.style.opacity = '0';
+            setTimeout(() => {
+                preloaderEl.style.display = 'none';
+                mainContent.style.opacity = '1';
+            }, 700);
+        }
+
+        // Audio Player Logic
+        const audio = document.getElementById('voiceSample');
+        const playBtn = document.getElementById('playBtn');
+        const playIcon = document.getElementById('playIcon');
+        const progressBar = document.getElementById('progressBar');
+        const currentTimeEl = document.getElementById('currentTime');
+        const durationTimeEl = document.getElementById('durationTime');
+        const progressBarContainer = document.getElementById('progressBarContainer');
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+
+        audio.addEventListener('loadedmetadata', () => {
+            durationTimeEl.textContent = formatTime(audio.duration);
+        });
+
+        audio.addEventListener('timeupdate', () => {
+            const progressPercent = (audio.currentTime / audio.duration) * 100;
+            progressBar.style.width = `${progressPercent}%`;
+            currentTimeEl.textContent = formatTime(audio.currentTime);
+        });
+
+        audio.addEventListener('ended', () => {
+            playIcon.className = 'fa-solid fa-play ml-1';
+        });
+
+        function togglePlay() {
+            if (audio.paused) {
+                audio.play().then(() => {
+                    playIcon.className = 'fa-solid fa-pause';
+                }).catch(err => {
+                    showModal("Audio Error", "Unable to auto-play audio sample. Please interact or check browser permissions.");
+                });
+            } else {
+                audio.pause();
+                playIcon.className = 'fa-solid fa-play ml-1';
+            }
+        }
+
+        function seekAudio(event) {
+            const rect = progressBarContainer.getBoundingClientRect();
+            const clickX = event.clientX - rect.left;
+            const width = rect.width;
+            const percentage = clickX / width;
+            audio.currentTime = percentage * audio.duration;
+        }
+
+        // Generate Visualizer Bars
+        const visualizer = document.getElementById('visualizer');
+        const barCount = 28;
+        for (let i = 0; i < barCount; i++) {
+            const bar = document.createElement('div');
+            bar.className = 'w-1 bg-[#00ffcc]/60 rounded-full transition-all duration-150';
+            bar.style.height = `${Math.floor(Math.random() * 40) + 10}%`;
+            visualizer.appendChild(bar);
+        }
+
+        // Animate visualizer when playing
+        setInterval(() => {
+            if (!audio.paused) {
+                const bars = visualizer.children;
+                for (let bar of bars) {
+                    const newHeight = Math.floor(Math.random() * 85) + 15;
+                    bar.style.height = `${newHeight}%`;
+                    bar.style.backgroundColor = Math.random() > 0.5 ? '#00ffcc' : '#00b4d8';
+                }
+            } else {
+                const bars = visualizer.children;
+                for (let bar of bars) {
+                    bar.style.height = '15%';
+                    bar.style.backgroundColor = '#00ffcc44';
+                }
+            }
+        }, 120);
+
+        // Download simulation modal
+        function downloadVoicebank(type) {
+            const title = type === 'cvc' ? 'CH1AD0 Japanese CVC v1.1' : 'CH1AD0 Demo UST Pack';
+            const msg = `Initiating download for ${title}. Recommended Resamplers: Worldline or HIFIsampler. Otoed by Guizokkaaa!`;
+            showModal("DOWNLOAD INITIATED", msg);
+        }
+
+        function showModal(title, message) {
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalMessage').textContent = message;
+            document.getElementById('customModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('customModal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
